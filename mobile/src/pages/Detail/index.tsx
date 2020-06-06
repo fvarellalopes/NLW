@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, View, TouchableOpacity, Image, Text, SafeAreaView, Linking } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
 import { Feather as Icon, FontAwesome } from '@expo/vector-icons';
-import { RectButton } from 'react-native-gesture-handler';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import * as MailComposer from 'expo-mail-composer';
-
+import React, { useEffect, useState } from 'react';
+import { Image, Linking, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
 import api from '../../services/api';
+
 
 
 interface Params {
@@ -14,6 +14,7 @@ interface Params {
 interface Data {
   point: {
     image: string;
+	image_url: string;
     name: string;
     whatsapp: string;
     email: string;
@@ -64,7 +65,7 @@ const Detail = () => {
           <Icon name="arrow-left" size={20} color="#34cb79" />
         </TouchableOpacity>
 
-        <Image style={styles.pointImage} source={{ uri: data.point.image }} />
+        <Image style={styles.pointImage} source={{ uri: data.point.image_url }} />
 
         <Text style={styles.pointName}>{data.point.name}</Text>
         <Text style={styles.pointItems}>{data.items.map(item => item.title).join(', ')}</Text>
@@ -75,11 +76,11 @@ const Detail = () => {
         </View>
       </View>
       <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={handleComposeMail }>
+        <RectButton style={styles.button} onPress={handleWhatsapp}>
           <FontAwesome name="whatsapp" size={20} color="#FFF" />
           <Text style={styles.buttonText}>Whatsapp</Text>
         </RectButton>
-        <RectButton style={styles.button} onPress={handleWhatsapp}>
+        <RectButton style={styles.button} onPress={handleComposeMail}>
           <Icon name="mail" size={20} color="#FFF" />
           <Text style={styles.buttonText}>E-mail</Text>
         </RectButton>

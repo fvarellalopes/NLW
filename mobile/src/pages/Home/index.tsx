@@ -1,13 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { AppLoading } from 'expo';
-import { StyleSheet, Text, Image, View, ImageBackground, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { Roboto_400Regular, Roboto_500Medium } from '@expo-google-fonts/roboto';
 import { Ubuntu_700Bold, useFonts } from '@expo-google-fonts/ubuntu';
-import { RectButton } from 'react-native-gesture-handler';
 import { Feather as Icon } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import axios from 'axios';
-import RNPickerSelect, { PickerStyle } from 'react-native-picker-select';
+import { AppLoading } from 'expo';
+import React, { useEffect, useState } from 'react';
+import { Image, ImageBackground, KeyboardAvoidingView, Platform, StyleSheet, Text, View } from 'react-native';
+import { RectButton } from 'react-native-gesture-handler';
+import RNPickerSelect from 'react-native-picker-select';
 
 
 
@@ -58,7 +58,7 @@ const Home = () => {
 
   function handleNavigateToPoints() {
     navigation.navigate('Points', {
-      uf:selectedUF, city:selectedCity
+      uf: selectedUF, city: selectedCity
     })
   }
 
