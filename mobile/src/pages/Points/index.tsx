@@ -6,6 +6,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import MapView, { Marker } from 'react-native-maps';
 import { SvgUri } from 'react-native-svg';
 
+
 import api from '../../services/api';
 import * as Location from 'expo-location';
 

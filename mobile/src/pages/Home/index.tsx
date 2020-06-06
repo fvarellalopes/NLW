@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState, useEffect } from 'react';
 import { AppLoading } from 'expo';
 import { StyleSheet, Text, Image, View, ImageBackground, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { Roboto_400Regular, Roboto_500Medium } from '@expo-google-fonts/roboto';
@@ -6,16 +6,59 @@ import { Ubuntu_700Bold, useFonts } from '@expo-google-fonts/ubuntu';
 import { RectButton } from 'react-native-gesture-handler';
 import { Feather as Icon } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import RNPickerSelect, { PickerStyle } from 'react-native-picker-select';
+
+
+
+interface IBGEUFResponse {
+  sigla: string;
+}
+interface IBGECityResponse {
+  nome: string;
+}
 
 const Home = () => {
 
-  const [uf, setUF] = useState('');
-  const [city, setCity] = useState('');
   const navigation = useNavigation();
+
+  // componentes que carregam dados do IBGE
+  const [ufs, setUFS] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
+  const [selectedUF, setSelectedUF] = useState<String>('0');
+  const [selectedCity, setSelectedCity] = useState<String>('0');
+
+
+  useEffect(() => {
+    axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados?orderBy=nome').then(response => {
+      setUFS(response.data.map(uf => uf.sigla));
+    });
+  }, []);
+
+  useEffect(() => {
+    if (selectedUF === '0') {
+      setCities([]);
+      return;
+    }
+    axios.get<IBGECityResponse[]>(`https://servicodados.ibge.gov.br/api/v1/localidades/estados/${selectedUF}/municipios?orderBy=nome`).then(response => {
+      setCities(response.data.map(city => city.nome));
+    });
+  }, [selectedUF]);
+
+  function handleSelectUF(uf: String) {
+
+    if (selectedUF !== uf) {
+      setSelectedCity('0');
+    }
+    setSelectedUF(uf);
+  }
+  function handleSelectCity(city: String) {
+    setSelectedCity(city);
+  }
 
   function handleNavigateToPoints() {
     navigation.navigate('Points', {
-      uf, city
+      uf:selectedUF, city:selectedCity
     })
   }
 
@@ -41,14 +84,28 @@ const Home = () => {
         </View>
 
         <View style={styles.footer}>
-          <TextInput style={styles.input}
-            placeholder="Digite a UF" value={uf} onChangeText={setUF}>
 
-          </TextInput>
-          <TextInput style={styles.input} value={city} onChangeText={setCity}
-            placeholder="Digite a Cidade">
+          <RNPickerSelect
+            onValueChange={(uf) => handleSelectUF(uf)}
+            placeholder={{ label: 'Selecione uma UF', value: '0' }}
+            items={ufs.map(uf => ({ label: uf, value: uf }))}
+            style={pickerStyles}
+          // useNativeAndroidPickerStyle={false}
+          // Icon={() => (
+          //   <Icon name="chevron-down" color="#6C6C80" size={24} />
+          // )}
+          />
+          <RNPickerSelect disabled={selectedUF == '0'}
+            onValueChange={(city) => handleSelectCity(city)}
+            placeholder={{ label: 'Selecione uma Cidade', value: '0' }}
+            items={cities.map(city => ({ label: city, value: city }))}
+            style={pickerStyles}
+          // useNativeAndroidPickerStyle={false}
+          // Icon={() => (
+          //   <Icon name="chevron-down" color="#6C6C80" size={24} />
+          // )}
+          />
 
-          </TextInput>
           <RectButton style={styles.button} onPress={() => { handleNavigateToPoints() }}>
             <View style={styles.buttonIcon}>
               <Text>
@@ -105,7 +162,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     fontSize: 16,
   },
-
   button: {
     backgroundColor: '#34CB79',
     height: 60,
@@ -113,7 +169,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     overflow: 'hidden',
     alignItems: 'center',
-    marginTop: 8,
+    marginTop: 16,
   },
 
   buttonIcon: {
@@ -133,3 +189,37 @@ const styles = StyleSheet.create({
     fontSize: 16,
   }
 });
+
+const pickerStyles = {
+  ...StyleSheet.create({
+    inputIOS: {
+      height: 60,
+      backgroundColor: "#fff",
+      borderRadius: 10,
+      marginBottom: 8,
+      paddingHorizontal: 24,
+      fontSize: 16,
+    },
+    inputAndroid: {
+      height: 60,
+      backgroundColor: "#fff",
+      borderRadius: 10,
+      marginBottom: 4,
+      paddingHorizontal: 24,
+      fontSize: 16,
+      borderWidth: 2,
+      borderColor: "#34CB79"
+
+    },
+    iconContainer: {
+      top: 20,
+      right: 15,
+    },
+    placeholder: {
+      color: '#6C6C80',
+      fontSize: 16,
+      marginTop: 16,
+      fontFamily: 'Roboto_400Regular',
+    }
+  })
+};
